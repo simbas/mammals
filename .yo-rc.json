@@ -1,0 +1,7 @@
+{
+  "generator-react-webpack": {
+    "appName": "mammals",
+    "style": "scss",
+    "postcss": true
+  }
+}
