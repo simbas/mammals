@@ -8,8 +8,9 @@
  */
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
-
 /* Populated by react-webpack-redux:reducer */
-const reducers = { mammals: require('../reducers/mammals.js') };
+const reducers = {
+  quizz: require('../reducers/quizz.js')
+};
 reducers.routing = routerReducer;
 module.exports = combineReducers(reducers);

@@ -1,7 +1,6 @@
 'use strict';
 
 import React from 'react';
-import { Link } from 'react-router'
 
 require('styles//Mammals.scss');
 
@@ -9,7 +8,7 @@ class MammalsItemComponent extends React.Component {
   render() {
     let {mammal} = this.props;
     return (
-      <div><Link to={`/mammal/${mammal.name}`}>{mammal.name}</Link></div>
+      <div>{mammal.name}</div>
     )
   }
 }
@@ -19,15 +18,38 @@ class MammalsComponent extends React.Component {
     let {actions} = this.props;
     actions.load();
   }
+  handleCLick () {
+    let {actions} = this.props;
+    actions.generate();
+  }
   render() {
-    let {mammals} = this.props;
-    return (
-      <div className="mammals-component">
-        {mammals.map(function (mammal) {
-          return <MammalsItemComponent mammal={mammal} key={mammal.name} />;
-        })}
-      </div>
-    );
+    let {quizz} = this.props;
+    let markup;
+    let quizzingMammals = quizz.mammals.filter(mammal => mammal.quizzing);
+
+    if (quizz.status === 'loading') {
+      markup = (
+        <div className="mammals-component">
+          <span>Loading mammals</span>
+        </div>
+      );
+    }else if (quizz.status === 'ready') {
+      markup = (
+        <div className="mammals-component">
+            <button type="button" onClick={(e) => this.handleCLick(e)}>start quizz</button>
+        </div>
+      );
+    } else {
+      markup = (
+        <div className="mammals-component">
+          {quizzingMammals.map(function (mammal) {
+            return <MammalsItemComponent mammal={mammal} key={mammal.name} />;
+          })}
+          <button type="button" onClick={(e) => this.handleCLick(e)}>next quizz</button>
+        </div>
+      );
+    }
+    return markup;
   }
 }
 
