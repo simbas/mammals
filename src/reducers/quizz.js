@@ -3,7 +3,7 @@
  * If you change the type from object to something else, do not forget to update
  * src/container/App.js accordingly.
  */
-const initialState = {mammals: [], status: 'loading', score: 0};
+const initialState = {mammals: [], status: 'loading', question: [], score: 0};
 
 function shuffleArray(array) {
     for (var i = array.length - 1; i > 0; i--) {
@@ -18,9 +18,8 @@ function shuffleArray(array) {
 function* quizzGenerator (mammals) {
   let remainingMammals = mammals.slice(0);
   shuffleArray(remainingMammals);
-
   while (remainingMammals.length >= 2) {
-    yield [remainingMammals.pop().name, remainingMammals.pop().name];
+    yield [remainingMammals.pop(), remainingMammals.pop()];
   }
 }
 
@@ -49,22 +48,34 @@ module.exports = function(state = initialState, action) {
       if (!quizz) {
         return state;
       }
-      for (let mammal of nextState.mammals) {
-        mammal.quizzing = false;
-      }
       let quizzGenerated = quizz.next();
       if (quizzGenerated.done) {
-        console.log('oups');
-        return state;
+        nextState.status = 'done';
+        return nextState;
       }
-      let [mammalName1, mammalName2] = quizzGenerated.value;
-      let mammal1 = nextState.mammals.find(mammal => mammal.name === mammalName1);
-      let mammal2 = nextState.mammals.find(mammal => mammal.name === mammalName2);
-      mammal1.quizzing = true;
-      mammal2.quizzing = true;
+      let question = quizzGenerated.value;
+      nextState.question = question;
+      let firstWinning = (question[0].sleepTotal >= question[1].sleepTotal);
+      question[0].winning = firstWinning;
+      question[1].winning = !firstWinning;
       nextState.status = 'quizzing';
       return nextState;
-    }
+    } break;
+    case 'SELECT': {
+      if (!quizz|| nextState.status !== 'quizzing') {
+        return state;
+      }
+
+      let mammal = nextState.question.find(mammal => action.payload.name === mammal.name);
+      mammal.selected = true;
+
+      if(mammal.winning) {
+        nextState.score++;
+      }
+
+      nextState.status = 'answered';
+      return nextState;
+    } break;
 
     default: {
       /* Return original state if no actions were consumed. */
